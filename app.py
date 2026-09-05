@@ -14,6 +14,7 @@ sys.path.insert(0, str(ROOT / "src"))
 from traffic_data_agent.agent import HybridPlanner, RulePlanner
 from traffic_data_agent.diagnostics import detect_redundancy, detect_target_leakage
 from traffic_data_agent.pipeline import TrafficDataWorkflow
+from traffic_data_agent.ollama_runtime import check_ollama
 from traffic_data_agent.diagnostics import recommended_exclusions
 from traffic_data_agent.profiling import build_data_dictionary, calculate_quality_score, profile_dataset
 from traffic_data_agent.visualization import (
@@ -42,7 +43,27 @@ st.markdown("""
 default_file = ROOT / "data" / "raw" / "traffic_ml_homework_dataset.csv"
 uploaded = st.sidebar.file_uploader("选择交通数据 CSV", type=["csv"])
 planner_mode = st.sidebar.selectbox("规划模式", ["规则规划器", "Ollama本地模型"])
-ollama_model = st.sidebar.text_input("Ollama模型", "qwen2.5:3b")
+ollama_model = "qwen2.5:3b"
+if planner_mode == "Ollama本地模型":
+    @st.cache_data(ttl=5, show_spinner=False)
+    def cached_ollama_status():
+        return check_ollama()
+
+    ollama_status = cached_ollama_status()
+    if ollama_status["available"]:
+        version_text = f" v{ollama_status['version']}" if ollama_status["version"] else ""
+        st.sidebar.success(f"Ollama 已连接{version_text}")
+        installed_models = ollama_status["models"]
+        if installed_models:
+            preferred = next((i for i, name in enumerate(installed_models) if name.startswith("qwen2.5:3b")), 0)
+            ollama_model = st.sidebar.selectbox("选择已安装模型", installed_models, index=preferred)
+        else:
+            st.sidebar.warning("Ollama已运行，但还没有下载模型。请先执行：ollama pull qwen2.5:3b")
+            ollama_model = st.sidebar.text_input("计划使用的模型", "qwen2.5:3b")
+    else:
+        st.sidebar.error("未连接到本机 Ollama，将自动使用规则规划器。")
+        st.sidebar.caption("确认 Ollama 已启动，并监听 http://127.0.0.1:11434")
+        ollama_model = st.sidebar.text_input("计划使用的模型", "qwen2.5:3b")
 
 if uploaded is not None:
     df = pd.read_csv(uploaded)

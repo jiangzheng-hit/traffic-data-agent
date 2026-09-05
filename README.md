@@ -103,6 +103,18 @@ streamlit run app.py
 2. 下载一个指令模型，例如 `qwen2.5:3b`。
 3. 在页面侧栏选择 Ollama，并填写模型名称。
 
+选择“Ollama本地模型”后，侧栏会自动检测本机服务状态、显示 Ollama 版本，
+并列出已经下载的模型。如果服务未启动或模型不存在，系统会给出明确提示并安全
+回退到规则规划器。状态检测只访问本机 `127.0.0.1:11434`，不会上传数据集。
+
+Windows 用户可以分别指定程序和模型位置。安装程序支持
+`OllamaSetup.exe /DIR="E:\\AI\\Ollama\\app"`；模型目录可通过用户环境变量
+`OLLAMA_MODELS=E:\\AI\\Ollama\\models` 设置。设置后重新启动 Ollama，再执行：
+
+```powershell
+ollama pull qwen2.5:3b
+```
+
 Ollama 只生成结构化计划，真正的数据处理仍由白名单 Python 工具执行。若模型输出不合规，系统会拒绝计划并回退到规则规划器。
 
 ## 命令行演示
