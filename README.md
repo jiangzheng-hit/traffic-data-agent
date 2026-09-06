@@ -36,6 +36,7 @@
 ├─ pyproject.toml        # 项目及测试配置
 ├─ .gitignore            # Git 忽略规则
 ├─ data/raw/             # 原始 CSV，不会被覆盖
+├─ data/testing/         # 公开测试 CSV 与数据来源说明
 ├─ docs/                 # 原始作业与项目讲解材料
 ├─ outputs/              # 清洗数据、指标、图表和报告
 ├─ src/traffic_data_agent/ # Agent、数据审查和建模源码
@@ -76,6 +77,13 @@ pip install -r requirements.txt
 pip install -e .
 streamlit run app.py
 ```
+
+## 公开测试数据
+
+仓库附带三份可直接在网页上传的公开 CSV，位于 `data/testing/`：共享单车需求、
+空气质量传感器和成人收入分类数据。它们分别用于测试时间序列回归、缺失值处理和
+通用分类能力。推荐预测目标、数据划分方式、来源与许可见
+[`data/testing/README.md`](data/testing/README.md)。
 
 从 GitHub 获取项目时：
 
